@@ -93,7 +93,7 @@ definitions:
         example: john_doe
         type: string
     type: object
-host: localhost:8083
+host: localhost
 info:
   contact: {}
   description: API for managing notes with JWT authentication
