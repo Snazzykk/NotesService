@@ -1,0 +1,335 @@
+basePath: /
+definitions:
+  NotesService_internal_models.DeleteResponse:
+    properties:
+      message:
+        example: success
+        type: string
+      status:
+        description: Result of operation (OK, Created, Error)
+        example: created
+        type: string
+    type: object
+  NotesService_internal_models.NoteResponse:
+    properties:
+      content:
+        example: note content
+        type: string
+      createdAt:
+        example: "2026-02-15T18:01:29.342814+02:00"
+        type: string
+      message:
+        example: success
+        type: string
+      noteID:
+        example: 1
+        type: integer
+      status:
+        description: Result of operation (OK, Created, Error)
+        example: created
+        type: string
+      title:
+        example: note title
+        type: string
+      updatedAt:
+        example: "2026-02-15T18:01:29.342814+02:00"
+        type: string
+      userId:
+        example: 1
+        type: integer
+    type: object
+  NotesService_internal_models.PutNoteRequest:
+    properties:
+      content:
+        example: Updated note content
+        type: string
+      title:
+        example: My new title
+        type: string
+    required:
+    - content
+    - title
+    type: object
+  NotesService_internal_models.SaveNoteRequest:
+    properties:
+      content:
+        example: Updated note content
+        type: string
+      title:
+        example: My new title
+        type: string
+    required:
+    - content
+    - title
+    type: object
+  NotesService_internal_models.UserRequest:
+    properties:
+      user_name:
+        example: john_doe
+        minLength: 3
+        type: string
+    required:
+    - user_name
+    type: object
+  NotesService_internal_models.UserResponse:
+    properties:
+      created_at:
+        example: "2025-01-01T12:00:00Z"
+        type: string
+      id:
+        example: 1
+        type: integer
+      message:
+        example: success
+        type: string
+      status:
+        description: Result of operation (OK, Created, Error)
+        example: created
+        type: string
+      token:
+        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        type: string
+      user_name:
+        example: john_doe
+        type: string
+    type: object
+host: localhost:8083
+info:
+  contact: {}
+  description: API for managing notes with JWT authentication
+  title: Notes Service API
+  version: "1.0"
+paths:
+  /users:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new user and returns user info with JWT token
+      parameters:
+      - description: User registration data
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/NotesService_internal_models.UserRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/NotesService_internal_models.UserResponse'
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+      summary: Register new user
+      tags:
+      - users
+  /users/{id}/notes:
+    get:
+      consumes:
+      - application/json
+      description: Returns all notes for a specific user. Requires JWT authentication.
+      parameters:
+      - description: User ID
+        in: path
+        minimum: 1
+        name: id
+        required: true
+        type: integer
+      - default: 10
+        description: Limit number of notes
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: Offset for pagination
+        in: query
+        name: offset
+        type: integer
+      - description: Sort by field (createdAt)
+        in: query
+        name: sort
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of notes
+          schema:
+            items:
+              $ref: '#/definitions/NotesService_internal_models.NoteResponse'
+            type: array
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal Server Error
+      security:
+      - ApiKeyAuth: []
+      summary: Get all notes for a user
+      tags:
+      - notes
+    post:
+      consumes:
+      - application/json
+      description: Saves a new note for a specific user. Requires JWT authentication.
+      parameters:
+      - description: User ID
+        in: path
+        minimum: 1
+        name: id
+        required: true
+        type: integer
+      - description: Note payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/NotesService_internal_models.SaveNoteRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created note
+          schema:
+            $ref: '#/definitions/NotesService_internal_models.NoteResponse'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal Server Error
+      security:
+      - ApiKeyAuth: []
+      summary: Create a new note
+      tags:
+      - notes
+  /users/{id}/notes/{note_id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a specific note by ID. Requires JWT authentication.
+      parameters:
+      - description: User ID
+        in: path
+        minimum: 1
+        name: id
+        required: true
+        type: integer
+      - description: Note ID
+        in: path
+        minimum: 1
+        name: note_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/NotesService_internal_models.DeleteResponse'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - ApiKeyAuth: []
+      summary: Delete a note
+      tags:
+      - notes
+    get:
+      consumes:
+      - application/json
+      description: Returns a single note for a specific user. Requires JWT authentication.
+      parameters:
+      - description: User ID
+        in: path
+        minimum: 1
+        name: id
+        required: true
+        type: integer
+      - description: Note ID
+        in: path
+        minimum: 1
+        name: note_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Single note
+          schema:
+            $ref: '#/definitions/NotesService_internal_models.NoteResponse'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - ApiKeyAuth: []
+      summary: Get one note by ID
+      tags:
+      - notes
+    put:
+      consumes:
+      - application/json
+      description: Updates the title and/or content of a note for a specific user.
+        Requires JWT authentication.
+      parameters:
+      - description: User ID
+        in: path
+        minimum: 1
+        name: id
+        required: true
+        type: integer
+      - description: Note ID
+        in: path
+        minimum: 1
+        name: note_id
+        required: true
+        type: integer
+      - description: Note update payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/NotesService_internal_models.PutNoteRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Updated note
+          schema:
+            $ref: '#/definitions/NotesService_internal_models.NoteResponse'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - ApiKeyAuth: []
+      summary: Update a note by ID
+      tags:
+      - notes
+securityDefinitions:
+  ApiKeyAuth:
+    description: Type "Bearer" followed by a space and JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
